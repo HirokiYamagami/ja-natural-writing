@@ -129,3 +129,22 @@
 4. 5章の定型の言い回しは残っていないか
 5. 同じことを2回書いていないか
 6. 声に出して読んだ時に、引っかかる箇所はないか
+
+## 参考資料
+
+このガイドは、作成時に参照した資料を記録していませんでした。下の表は、後から各章の内容と照らし合わせて、対応する資料を挙げたものです。
+
+| 章 | 対応する資料 |
+|---|---|
+| 2章 1文の長さ | 文化庁 文化審議会「公用文作成の考え方（建議）」（2022年）、textlint-rule-preset-ja-technical-writing の `sentence-length`（100字）と `max-ten`（読点の数） |
+| 3章 主語と述語の距離 | 本多勝一『日本語の作文技術』（朝日新聞社、1976年） |
+| 4章 冗長な表現 | 文化庁「公用文作成の考え方」、textlint-rule-preset-ja-technical-writing の `ja-no-redundant-expression` |
+| 8章 カタカナ語 | 国立国語研究所「『外来語』言い換え提案」（2002〜2006年）、文化庁「公用文作成の考え方」 |
+| 9章 助詞の重複 | textlint-rule-preset-ja-technical-writing の `no-doubled-joshi` と `no-doubled-conjunctive-particle-ga` |
+| 10章 文体の混在 | textlint-rule-preset-ja-technical-writing の `no-mix-dearu-desumasu` |
+
+5章（AI っぽい定型の言い回し）と6章、11章には、対応する公開資料が見つかっていません。
+
+- 文化庁「公用文作成の考え方」 https://www.bunka.go.jp/seisaku/bunkashingikai/kokugo/hokoku/
+- 国立国語研究所「『外来語』言い換え提案」 https://www2.ninjal.ac.jp/gairaigo/
+- textlint-rule-preset-ja-technical-writing https://github.com/textlint-ja/textlint-rule-preset-ja-technical-writing
