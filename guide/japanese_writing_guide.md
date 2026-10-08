@@ -143,7 +143,7 @@
 | 9章 助詞の重複 | textlint-rule-preset-ja-technical-writing の `no-doubled-joshi` と `no-doubled-conjunctive-particle-ga` |
 | 10章 文体の混在 | textlint-rule-preset-ja-technical-writing の `no-mix-dearu-desumasu` |
 
-5章（AI っぽい定型の言い回し）と6章、11章には、対応する公開資料が見つかっていません。
+1章、5〜7章（5章は AI っぽい定型の言い回し）、11章には、対応する公開資料が見つかっていません。
 
 - 文化庁「公用文作成の考え方」 https://www.bunka.go.jp/seisaku/bunkashingikai/kokugo/hokoku/
 - 国立国語研究所「『外来語』言い換え提案」 https://www2.ninjal.ac.jp/gairaigo/
