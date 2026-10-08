@@ -1,0 +1,29 @@
+{
+  "filters": {
+    "comments": true
+  },
+  "rules": {
+    "preset-ja-technical-writing": {
+      "sentence-length": {
+        "max": 100
+      },
+      "max-ten": {
+        "max": 3
+      },
+      "no-exclamation-question-mark": {
+        "allowFullWidthQuestion": true,
+        "allowHalfWidthQuestion": true
+      },
+      "ja-no-mixed-period": false,
+      "max-kanji-continuous-len": false,
+      "arabic-kanji-numbers": false,
+      "ja-no-weak-phrase": false,
+      "ja-unnatural-alphabet": false,
+      "no-mix-dearu-desumasu": {
+        "preferInHeader": "",
+        "preferInBody": "",
+        "preferInList": ""
+      }
+    }
+  }
+}

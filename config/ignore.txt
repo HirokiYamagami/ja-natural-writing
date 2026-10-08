@@ -1,0 +1,5 @@
+# 日本語チェック（textlint）をかけないファイルのパターン。1行に1つ。
+# フルパスまたはファイル名に対する glob で判定する。
+CHANGELOG.md
+*/node_modules/*
+*/ja-natural-writing/guide/*
