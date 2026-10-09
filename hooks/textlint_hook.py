@@ -7,7 +7,7 @@ Write / Edit / MultiEdit の直後に呼ばれ、Claude が書き換えた行だ
 
 チェックしないもの:
   - 拡張子が .md / .markdown / .txt 以外のファイル
-  - 書き換えた部分に日本語がほとんどないもの
+  - 書き換えた行に日本語がほとんどないもの
   - 引用（行頭が ">"）、行末に style-ignore / textlint-ignore を付けた行
   - config/ignore.txt に書いたパターンに当たるファイル
 
@@ -29,7 +29,8 @@ CONFIG = REPO_DIR / ".textlintrc.json"
 IGNORE_FILE = REPO_DIR / "config" / "ignore.txt"
 
 EXTENSIONS = {".md", ".markdown", ".txt"}
-MIN_JA_CHARS = 30      # 書き換えた部分の日本語がこれ未満なら見ない
+MIN_JA_CHARS = 30      # 書き換えた行の日本語がこれ未満なら見ない
+MAX_SENTENCE = 60      # 指摘に添える文の長さの上限
 MAX_REPORT = 15        # Claude に返す指摘の上限
 TIMEOUT = 40
 IGNORE_MARKS = ("style-ignore", "textlint-ignore")
@@ -67,13 +68,13 @@ def is_ignored(path):
 def changed_line_ranges(tool_name, tool_input, text):
     """Claude が書き換えた行の範囲 [(開始, 終了), ...]（1始まり・両端含む）を返す。"""
     if tool_name == "Write":
-        return [(1, text.count("\n") + 1)], tool_input.get("content", "")
+        return [(1, text.count("\n") + 1)]
     if tool_name == "Edit":
         new_parts = [tool_input.get("new_string", "")]
     elif tool_name == "MultiEdit":
         new_parts = [e.get("new_string", "") for e in tool_input.get("edits", [])]
     else:
-        return [], ""
+        return []
     ranges = []
     for part in new_parts:
         if not part.strip():
@@ -86,7 +87,7 @@ def changed_line_ranges(tool_name, tool_input, text):
             first = text.count("\n", 0, i) + 1
             ranges.append((first, first + part.count("\n")))
             start = i + len(part)
-    return ranges, "\n".join(new_parts)
+    return ranges
 
 
 def run_textlint(node, path):
@@ -107,6 +108,18 @@ def short_message(msg):
     return first[:120]
 
 
+def sentence_at(line, column):
+    """行の中で column（1始まり）の位置を含む文を返す。1行に文が複数ある時に、どの文の指摘かを示すため。"""
+    pos = max(0, min(column - 1, len(line)))
+    start = max(line.rfind(c, 0, pos) for c in "。！？!?") + 1
+    ends = [i for i in (line.find(c, pos) for c in "。！？!?") if i >= 0]
+    end = min(ends) + 1 if ends else len(line)
+    sentence = line[start:end].strip()
+    if len(sentence) > MAX_SENTENCE:
+        sentence = sentence[:MAX_SENTENCE] + "…"
+    return sentence
+
+
 def main():
     try:
         data = json.load(sys.stdin)
@@ -124,8 +137,12 @@ def main():
     except (OSError, UnicodeDecodeError):
         return 0
 
-    ranges, written = changed_line_ranges(tool_name, tool_input, text)
-    if not ranges or len(JA_CHAR.findall(written)) < MIN_JA_CHARS:
+    lines = text.split("\n")
+    ranges = changed_line_ranges(tool_name, tool_input, text)
+    # 書き換えた部分そのものではなく、それを含む行全体で数える。
+    # 数文字の修正でも、同じ行に残った指摘を見逃さないため。
+    touched = "\n".join("\n".join(lines[a - 1:b]) for a, b in ranges)
+    if not ranges or len(JA_CHAR.findall(touched)) < MIN_JA_CHARS:
         return 0
 
     node = find_node()
@@ -138,7 +155,6 @@ def main():
     if not messages:
         return 0
 
-    lines = text.split("\n")
     hits = []
     for m in messages:
         no = m.get("line", 0)
@@ -148,7 +164,9 @@ def main():
         if line.lstrip().startswith(">") or any(k in line for k in IGNORE_MARKS):
             continue
         rule = m.get("ruleId", "").split("/")[-1]
-        hits.append(f"- L{no} [{rule}] {short_message(m.get('message', ''))}")
+        col = m.get("column", 0)
+        hits.append(f"- L{no}:{col} [{rule}] {short_message(m.get('message', ''))}\n"
+                    f"  該当する文：{sentence_at(line, col)}")
     if not hits:
         return 0
 

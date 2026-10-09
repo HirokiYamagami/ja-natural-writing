@@ -22,6 +22,7 @@ Claude がファイルを書いた・編集した直後（PostToolUse）に、[t
 - 対象：`.md` `.markdown` `.txt` のうち、日本語を含むもの
 - **Claude が書き換えた行だけ**を見ます。もともとあった文章には指摘を出しません
 - 引用（行頭が `>`）と、行末に `<!-- textlint-ignore -->` を付けた行は見ません
+- 指摘は行番号・列番号と、該当する文を添えて返します
 - textlint が動かない時は素通しします
 
 ルールは [textlint-rule-preset-ja-technical-writing](https://github.com/textlint-ja/textlint-rule-preset-ja-technical-writing) をもとに、誤検知の多いものを外しています（`.textlintrc.json`）。
@@ -75,7 +76,7 @@ hook のコード（`hooks/textlint_hook.py`）は、いつ・どの行をチェ
 次の動きは hook 独自に決めたもので、元になった資料はありません。
 
 - Claude が書き換えた行だけを見る
-- 書き換えた部分の日本語が30字未満なら見ない
+- 書き換えた行の日本語が30字未満なら見ない
 - Claude に返す指摘は15件まで
 - 引用（行頭が `>`）は見ない
 
